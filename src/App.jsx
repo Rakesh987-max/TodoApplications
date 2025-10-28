@@ -1,11 +1,13 @@
 
 import React from 'react'
-import Userrefernce from './component/TodoApp'
+
+
+import TodoApp from './component/TodoApp'
 
 const App = () => {
   return (
     <div>
-      <Userrefernce/>
+      <TodoApp/>
     </div>
   )
 }

@@ -1,100 +1,71 @@
 
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, useEffect } from "react";
+import "./TodoApp.css"// 👈 Import CSS file
 
-// Step 1: Initial State
-const initialTodos = [];
+const initialState =
+  JSON.parse(localStorage.getItem("tasks")) || [
+    "Rakesh",
+    "Archana",
+    "Kalyani",
+    "Pujitha",
+    "Rajakumari",
+  ];
 
-// Step 2: Reducer Function
 function reducer(state, action) {
   switch (action.type) {
-    case "ADD_TODO":
-      return [
-        ...state,
-        { id: Date.now(), text: action.payload, completed: false },
-      ];
-
-    case "TOGGLE_TODO":
-      return state.map((todo) =>
-        todo.id === action.payload
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      );
-
-    case "DELETE_TODO":
-      return state.filter((todo) => todo.id !== action.payload);
-
+    case "Add_User":
+      return [...state, ...action.payload];
+    case "Delete_User":
+      return state.filter((_, index) => index !== action.payload);
     default:
       return state;
   }
 }
 
-// Step 3: Component
 const TodoApp = () => {
-  const [state, dispatch] = useReducer(reducer, initialTodos);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [text, setText] = useState("");
 
-  const handleAdd = () => {
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(state));
+  }, [state]);
+
+  const AddTask = () => {
     if (text.trim() === "") return;
-    dispatch({ type: "ADD_TODO", payload: text });
+    dispatch({ type: "Add_User", payload: [text] });
     setText("");
   };
 
-  const handleToggle = (id) => {
-    dispatch({ type: "TOGGLE_TODO", payload: id });
-  };
-
-  const handleDelete = (id) => {
-    dispatch({ type: "DELETE_TODO", payload: id });
+  const DeleteTask = (index) => {
+    dispatch({ type: "Delete_User", payload: index });
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>📝 Todo Application</h1>
+    <div className="todo-container">
+      <h1>Todo App (Add + Delete)</h1>
 
-      <input
-        type="text"
-        placeholder="Enter new task..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        style={{
-          padding: "8px",
-          width: "250px",
-          marginRight: "10px",
-          borderRadius: "5px",
-        }}
-      />
-      <button onClick={handleAdd}>Add</button>
-
-      <ul style={{ listStyle: "none", padding: 0, marginTop: "30px" }}>
-        {state.length === 0 ? (
-          <p>No tasks yet!</p>
-        ) : (
-          state.map((todo) => (
-            <li
-              key={todo.id}
-              style={{
-                margin: "10px 0",
-                textDecoration: todo.completed ? "line-through" : "none",
-                color: todo.completed ? "gray" : "black",
-              }}
-            >
-              {todo.text}
-              <button
-                onClick={() => handleToggle(todo.id)}
-                style={{ marginLeft: "10px" }}
-              >
-                {todo.completed ? "Undo" : "Done"}
-              </button>
-              <button
-                onClick={() => handleDelete(todo.id)}
-                style={{ marginLeft: "10px", color: "red" }}
-              >
-                Delete
-              </button>
-            </li>
-          ))
-        )}
+      <ul className="todo-list">
+        {state.map((value, index) => (
+          <li key={index}>
+            {value}
+            <button className="delete-btn" onClick={() => DeleteTask(index)}>
+              Delete
+            </button>
+          </li>
+        ))}
       </ul>
+
+      <div>
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Enter name"
+        />
+        <button className="add-btn" onClick={AddTask}>
+          Add Task
+        </button>
+      </div>
     </div>
   );
 };
